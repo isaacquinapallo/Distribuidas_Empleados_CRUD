@@ -91,4 +91,3 @@ Mapeado para:
 ## 📎 Autor
 
 **Isaac Quinapallo**  
-Pasante de IT – Vidanova
