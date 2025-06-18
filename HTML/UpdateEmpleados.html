@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Actualizar Empleado</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      max-width: 400px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .mensaje {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      text-decoration: none;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h2>Actualizar Datos de un Empleado</h2>
+
+  <form id="formActualizar">
+    <input type="number" id="id" name="id" placeholder="ID del empleado" min="1" required />
+    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo nuevo" required />
+    <input type="text" id="cargo" name="cargo" placeholder="Cargo nuevo" required />
+    <input type="number" step="0.01" id="sueldo" name="sueldo" placeholder="Sueldo nuevo" required />
+    <button type="submit">Actualizar</button>
+  </form>
+
+  <div class="mensaje" id="mensaje"></div>
+
+  <a href="index.html">← Volver al inicio</a>
+
+  <script>
+    const form = document.getElementById('formActualizar');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const idStr = form.elements['id'].value.trim();
+      const id = parseInt(idStr, 10);
+      const nombre = form.elements['nombre'].value.trim();
+      const cargo = form.elements['cargo'].value.trim();
+      const sueldo = parseFloat(form.elements['sueldo'].value);
+
+      if (!idStr || isNaN(id) || id < 1) {
+        mensaje.textContent = '❌ Por favor, ingresa un ID válido.';
+        mensaje.style.color = 'red';
+        return;
+      }
+      if (!nombre || !cargo || isNaN(sueldo)) {
+        mensaje.textContent = '❌ Por favor, completa todos los campos correctamente.';
+        mensaje.style.color = 'red';
+        return;
+      }
+
+      const datos = { nombre, cargo, sueldo };
+
+      try {
+        const res = await fetch(`/empleados/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+
+        if (!res.ok) {
+          let errorText;
+          try {
+            errorText = await res.text();
+          } catch {
+            errorText = 'Error al actualizar';
+          }
+          throw new Error(errorText);
+        }
+
+        const result = await res.json();
+        mensaje.textContent = `✅ ${result.message}`;
+        mensaje.style.color = 'green';
+        form.reset();
+
+      } catch (error) {
+        mensaje.textContent = `❌ Error: ${error.message || 'Error desconocido'}`;
+        mensaje.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>

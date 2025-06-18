@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lista de Empleados</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f9f9f9;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    a {
+      display: block;
+      margin-top: 30px;
+      text-align: center;
+      text-decoration: none;
+      color: #007BFF;
+    }
+  </style>
+</head>
+<body>
+  <h2>Lista de Empleados Registrados</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Cargo</th>
+        <th>Sueldo</th>
+      </tr>
+    </thead>
+    <tbody id="tablaEmpleados">
+      <!-- Aquí se insertan los empleados dinámicamente -->
+    </tbody>
+  </table>
+
+  <a href="index.html">← Volver al inicio</a>
+
+  <script>
+    const tabla = document.getElementById('tablaEmpleados');
+
+    fetch('/empleados')
+      .then(res => {
+        if (!res.ok) throw new Error('No se pudo obtener la lista de empleados');
+        return res.json();
+      })
+      .then(data => {
+        if (data.length === 0) {
+          tabla.innerHTML = '<tr><td colspan="4" style="text-align:center;">No hay empleados registrados</td></tr>';
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+
+        data.forEach(emp => {
+          const fila = document.createElement('tr');
+          fila.innerHTML = `
+            <td>${emp.id}</td>
+            <td>${emp.nombre}</td>
+            <td>${emp.cargo}</td>
+            <td>${parseFloat(emp.sueldo).toFixed(2)}</td>
+          `;
+          fragment.appendChild(fila);
+        });
+
+        tabla.appendChild(fragment);
+      })
+      .catch(error => {
+        tabla.innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">❌ ${error.message}</td></tr>`;
+      });
+  </script>
+</body>
+</html>

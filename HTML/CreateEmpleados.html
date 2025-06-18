@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agregar Empleado</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 50px;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+    }
+    input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .mensaje {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      text-decoration: none;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h2>Agregar Nuevo Empleado</h2>
+
+  <form id="formEmpleado">
+    <input type="text" id="nombre" name="nombre" placeholder="Nombre completo" required />
+    <input type="text" id="cargo" name="cargo" placeholder="Cargo" required />
+    <input type="number" step="0.01" id="sueldo" name="sueldo" placeholder="Sueldo" required />
+    <button type="submit">Guardar</button>
+  </form>
+
+  <div class="mensaje" id="mensaje"></div>
+
+  <a href="index.html">← Volver al inicio</a>
+
+  <script>
+    const form = document.getElementById('formEmpleado');
+    const mensaje = document.getElementById('mensaje');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nombre = form.elements['nombre'].value.trim();
+      const cargo = form.elements['cargo'].value.trim();
+      const sueldoRaw = form.elements['sueldo'].value;
+      const sueldo = parseFloat(sueldoRaw);
+
+      if (isNaN(sueldo)) {
+        mensaje.textContent = '❌ El sueldo debe ser un número válido';
+        mensaje.style.color = 'red';
+        return;
+      }
+
+      const empleado = { nombre, cargo, sueldo };
+
+      try {
+        const res = await fetch('/empleados', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(empleado)
+        });
+
+        if (!res.ok) {
+          let errorText;
+          try {
+            errorText = await res.text();
+          } catch {
+            errorText = 'Error desconocido';
+          }
+          throw new Error(errorText);
+        }
+
+        const data = await res.json();
+        mensaje.textContent = `✅ Empleado agregado (ID: ${data.id})`;
+        mensaje.style.color = 'green';
+        form.reset();
+
+        setTimeout(() => {
+          mensaje.textContent = '';
+        }, 5000);
+
+      } catch (error) {
+        mensaje.textContent = `❌ Error: ${error.message}`;
+        mensaje.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>
